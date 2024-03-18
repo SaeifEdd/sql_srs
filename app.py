@@ -8,7 +8,7 @@ st.write('SQL Spaced Repetition '
 
 option = st.selectbox(
    "What would you like to review?",
-   ("Joins", "Groupby", "windows Functions"),
+   ("Joins", "Group by", "windows Functions"),
    index=None,
    placeholder="Select contact method...",
 )
