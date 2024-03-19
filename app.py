@@ -28,11 +28,29 @@ CROSS JOIN food_items
 '''
 solution = db.sql(answer).df()
 
+
+st.write("""
+         # SQL SRS 
+         SQL Spaced Repetition
+         System""")
+
+with st.sidebar:
+    option = st.selectbox(
+       "What would you like to review?",
+       ("Joins", "Group by", "windows Functions"),
+       index=None,
+       placeholder="Select contact method...",
+    )
+
+    st.write('You selected:', option)
+
+
 st.header('enter your code')
 query = st.text_area(label='write your sql command', key='user input')
 if query:
     result = db.query(query).df()
     st.dataframe(result)
+
 
 tab1, tab2 = st.tabs(["tables", "solution"])
 
