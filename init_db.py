@@ -10,7 +10,7 @@ data = {
     "theme": ["cross join", "window_functions"],
     "exercise name": ["beverages_and_food", "simple_window"],
     "tables": [["beverages", "food_items"], "simple_window"],
-    "last_reviewed": ["1970-01-01", "1970-01-01"]
+    "last_reviewed": ["1970-01-01", "1970-01-01"],
 }
 memory_state_df = pd.DataFrame(data)
 con.execute("CREATE OR REPLACE TABLE memory_state AS SELECT * FROM memory_state_df")

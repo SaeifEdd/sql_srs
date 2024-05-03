@@ -8,7 +8,7 @@ ANSWER_STR = """
 SELECT * FROM beverages 
 CROSS JOIN food_items
 """
-#solution_df = duckdb.sql(ANSWER_STR).df()
+# solution_df = duckdb.sql(ANSWER_STR).df()
 
 
 st.write(
