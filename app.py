@@ -1,6 +1,16 @@
-import ast
+import logging
+import os
+import logging
 import streamlit as st
 import duckdb
+
+if "data" not in os.listdir():
+    logging.error(os.listdir())
+    logging.error("making data folder")
+    os.mkdir("data")
+
+if "exercises_sql_tables.duckdb" not in os.listdir("data"):
+    exec(open("init_db.py").read())
 
 con = duckdb.connect(database="data/exercises_sql_tables.duckdb", read_only=False)
 
@@ -13,22 +23,27 @@ st.write(
 )
 
 with st.sidebar:
+    available_themes = con.execute("SELECT DISTINCT theme FROM memory_state").df()
     theme = st.selectbox(
         "What would you like to review?",
-        ("cross join", "Group by", "window_functions"),
+        available_themes["theme"].unique(),
         index=None,
         placeholder="Select a topic...",
     )
+    if theme:
+        st.write("You selected:", theme)
+        select_exercise_query = f"SELECT * FROM memory_state where theme = '{theme}' "
 
-    st.write("You selected:", theme)
+    else:
+        select_exercise_query = "SELECT * FROM memory_state"
+
     exercise = (
-        con.execute(f"SELECT * FROM memory_state where theme = '{theme}' ")
+        con.execute(select_exercise_query)
         .df()
         .sort_values("last_reviewed")
         .reset_index(drop=True)
     )
     st.write(exercise)
-
     exercise_name = exercise.loc[0, "exercise name"]
     with open(f"answers/{exercise_name}.sql", "r") as f:
         answer = f.read()
@@ -53,12 +68,12 @@ if query:
         st.write(f"result has {rows_difference} rows different than solution")
 
 
-tab1, tab2 = st.tabs(["tables", "solution"])
+tab1, tab2 = st.tabs(["Tables", "Solution"])
 
 with tab1:
     exercise_tables = exercise.loc[0, "tables"]
     for table in exercise_tables:
-        st.write(f"table:{table}")
+        st.write(f"table: {table}")
         table_df = con.execute(f"SELECT * FROM {table}").df()
         st.dataframe(table_df)
 #     st.write("beverages")
