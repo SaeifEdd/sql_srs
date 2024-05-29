@@ -7,10 +7,10 @@ con = duckdb.connect(database="data/exercises_sql_tables.duckdb", read_only=Fals
 #                  Exercises list
 #   ------------------------------------------------------------------
 data = {
-    "theme": ["cross join", "window_functions"],
-    "exercise name": ["beverages_and_food", "simple_window"],
-    "tables": [["beverages", "food_items"], "simple_window"],
-    "last_reviewed": ["1970-01-01", "1970-01-01"],
+    "theme": ["cross join", "cross join"],
+    "exercise name": ["beverages_and_food", "sizes_and_trademarks"],
+    "tables": [["beverages", "food_items"], ["sizes", "trademarks"]],
+    "last_reviewed": ["1980-01-01", "1970-01-01"],
 }
 memory_state_df = pd.DataFrame(data)
 con.execute("CREATE OR REPLACE TABLE memory_state AS SELECT * FROM memory_state_df")
@@ -37,3 +37,25 @@ cheese cake, 7
 
 food_items = pd.read_csv(io.StringIO(CSV2))
 con.execute("CREATE TABLE IF NOT EXISTS food_items AS SELECT * FROM food_items")
+
+size_csv = """
+size
+XS
+M
+L
+XL
+"""
+
+size = pd.read_csv(io.StringIO(size_csv))
+con.execute("CREATE OR REPLACE TABLE sizes AS SELECT * FROM size")
+
+trademark_csv = """
+trademark
+Nike
+Asphalte
+Abercrombie
+Lewis
+"""
+
+trademark = pd.read_csv(io.StringIO(trademark_csv))
+con.execute("CREATE OR REPLACE TABLE trademarks AS SELECT * FROM trademark")
