@@ -15,6 +15,7 @@ if "exercises_sql_tables.duckdb" not in os.listdir("data"):
 
 con = duckdb.connect(database="data/exercises_sql_tables.duckdb", read_only=False)
 
+
 def check_user_solution(user_query: str) -> None:
     """
     Checks if user solution is correct by:
@@ -28,7 +29,7 @@ def check_user_solution(user_query: str) -> None:
     try:
         result = result[solution_df.columns]
         comparison = result.compare(solution_df)
-        if comparison.empty():
+        if comparison.empty:
             st.balloons()
             st.write("That's Correct !")
         else:
@@ -39,9 +40,7 @@ def check_user_solution(user_query: str) -> None:
         st.write("There are some missing columns")
     rows_difference = result.shape[0] - solution_df.shape[0]
     if rows_difference != 0:
-        st.write(
-            f"result has {rows_difference} rows different than solution"
-        )
+        st.write(f"result has {rows_difference} rows different than solution")
 
 
 st.write(
@@ -83,18 +82,19 @@ st.header("enter your code")
 query = st.text_area(label="write your sql command", key="user input")
 
 
-
 if query:
     check_user_solution(query)
 
 for n_days in [2, 7, 21]:
     if st.button(f"review in {n_days} days"):
         next_review = date.today() + timedelta(days=n_days)
-        con.execute(f"UPDATE memory_state SET last_reviewed = '{next_review}' where exercise_name = '{exercise_name}'")
+        con.execute(
+            f"UPDATE memory_state SET last_reviewed = '{next_review}' where exercise_name = '{exercise_name}'"
+        )
         st.rerun()
 
 
-if st.button('Reset'):
+if st.button("Reset"):
     con.execute("UPDATE memory_state set last_reviewed = '1970-01-01'")
     st.rerun()
 
