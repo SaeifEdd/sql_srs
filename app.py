@@ -3,6 +3,7 @@ import os
 import logging
 import streamlit as st
 import duckdb
+from datetime import date, timedelta
 
 if "data" not in os.listdir():
     logging.error(os.listdir())
@@ -13,6 +14,34 @@ if "exercises_sql_tables.duckdb" not in os.listdir("data"):
     exec(open("init_db.py").read())
 
 con = duckdb.connect(database="data/exercises_sql_tables.duckdb", read_only=False)
+
+def check_user_solution(user_query: str) -> None:
+    """
+    Checks if user solution is correct by:
+    1: compare columns
+    2: compare number of rows
+    :param user_query: string contains the query entered by user
+    :return:
+    """
+    result = con.execute(user_query).df()
+    st.dataframe(result)
+    try:
+        result = result[solution_df.columns]
+        comparison = result.compare(solution_df)
+        if comparison.empty():
+            st.balloons()
+            st.write("That's Correct !")
+        else:
+            st.dataframe(comparison)
+            st.write("try again !")
+
+    except KeyError as e:
+        st.write("There are some missing columns")
+    rows_difference = result.shape[0] - solution_df.shape[0]
+    if rows_difference != 0:
+        st.write(
+            f"result has {rows_difference} rows different than solution"
+        )
 
 
 st.write(
@@ -44,7 +73,7 @@ with st.sidebar:
         .reset_index(drop=True)
     )
     st.write(exercise)
-    exercise_name = exercise.loc[0, "exercise name"]
+    exercise_name = exercise.loc[0, "exercise_name"]
     with open(f"answers/{exercise_name}.sql", "r") as f:
         answer = f.read()
 
@@ -53,20 +82,21 @@ with st.sidebar:
 st.header("enter your code")
 query = st.text_area(label="write your sql command", key="user input")
 
+
+
 if query:
-    result = con.execute(query).df()
-    st.dataframe(result)
+    check_user_solution(query)
 
-    try:
-        result = result[solution_df.columns]
-        st.dataframe(result.compare(solution_df))
-    except KeyError as e:
-        st.write("There are some missing columns")
+for n_days in [2, 7, 21]:
+    if st.button(f"review in {n_days} days"):
+        next_review = date.today() + timedelta(days=n_days)
+        con.execute(f"UPDATE memory_state SET last_reviewed = '{next_review}' where exercise_name = '{exercise_name}'")
+        st.rerun()
 
-    rows_difference = result.shape[0] - solution_df.shape[0]
-    if rows_difference != 0:
-        st.write(f"result has {rows_difference} rows different than solution")
 
+if st.button('Reset'):
+    con.execute("UPDATE memory_state set last_reviewed = '1970-01-01'")
+    st.rerun()
 
 tab1, tab2 = st.tabs(["Tables", "Solution"])
 
